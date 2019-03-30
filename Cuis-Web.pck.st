@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3686] on 30 March 2019 at 5:20:58 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3686] on 30 March 2019 at 5:32:27 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 0!
+!provides: 'Cuis-Web' 1 1!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 
@@ -17,10 +17,11 @@ CuisWebServer class
 	instanceVariableNames: ''!
 
 
-!CuisWebServer methodsFor: 'as yet unclassified' stamp: 'GC 3/30/2019 17:17:40'!
+!CuisWebServer methodsFor: 'as yet unclassified' stamp: 'GC 3/30/2019 17:30:57'!
 initialize
 
-	webServer _ WebServer new! !
+	webServer _ WebServer new.
+	webServer addService: '/' action: [ :req | req send200Response: 'Hello World!!']! !
 
 !CuisWebServer methodsFor: 'as yet unclassified' stamp: 'GC 3/30/2019 17:15:56'!
 start
