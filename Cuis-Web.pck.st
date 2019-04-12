@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3686] on 31 March 2019 at 4:57:56 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3695] on 11 April 2019 at 11:43:53 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 3!
+!provides: 'Cuis-Web' 1 4!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 
@@ -117,25 +117,34 @@ forRequest: aRequest
 	
 	^ self new request: aRequest; yourself! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:53:54'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/11/2019 23:41:45'!
 actionSelector
-
-	^ #index:! !
-
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 04:28:38'!
-controllerClass
 	|parsedPath|
 
-	
+	(request isGetRequest and: [ request url = '/' ])
+		ifTrue: [ ^ #index: ]
+		ifFalse: [
+			parsedPath _ request url substrings: '/'.
+			(parsedPath size = 1)
+				ifTrue: [ ^ #index:  ] 
+				ifFalse: [ ^ parsedPath last :: append: ':' :: asSymbol ]
+		]! !
+
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/10/2019 05:32:46'!
+controllerClass
+	|parsedPath|
 
 	request url = '/' 
 		ifTrue: [ ^ RootController ] 
 		ifFalse: [
-			parsedPath _ request url withoutPrefix: '/' :: capitalized.
-			^ RootController subclasses detect: [ :controller | controller name asString beginsWith: parsedPath ] ifNone: [ request send404Response ]
+			parsedPath _ request url withoutPrefix: '/' :: upToLastPathSeparator :: capitalized.
+			
+			^ RootController subclasses 
+				detect: [ :controller | controller name asString beginsWith: parsedPath ] 
+				ifNone: [ request send404Response ]
 		]! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:51:20'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/10/2019 05:32:36'!
 handle
 	
 	^ {self httpMethods . [ :aRequest | self controllerClass new perform: self actionSelector with: aRequest ]}! !
