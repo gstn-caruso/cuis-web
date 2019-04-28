@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3695] on 11 April 2019 at 11:43:53 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3696] on 19 April 2019 at 11:47:19 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 4!
+!provides: 'Cuis-Web' 1 7!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 
@@ -46,6 +46,16 @@ Path subclass: #SmartPath
 SmartPath class
 	instanceVariableNames: ''!
 
+!classDefinition: #StaticPath category: #'Cuis-Web'!
+Path subclass: #StaticPath
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web'!
+!classDefinition: 'StaticPath class' category: #'Cuis-Web'!
+StaticPath class
+	instanceVariableNames: ''!
+
 !classDefinition: #RootController category: #'Cuis-Web'!
 Object subclass: #RootController
 	instanceVariableNames: ''
@@ -56,11 +66,24 @@ Object subclass: #RootController
 RootController class
 	instanceVariableNames: ''!
 
+!classDefinition: #View category: #'Cuis-Web'!
+Object subclass: #View
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web'!
+!classDefinition: 'View class' category: #'Cuis-Web'!
+View class
+	instanceVariableNames: ''!
 
-!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:51:13'!
+
+!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 18:20:54'!
 request: request
-
- 	^ SmartPath forRequest: request :: handle! !
+	
+	(StaticPath anyCanHandle: request)
+		ifTrue: [ ^ StaticPath forRequest: request :: handle ]
+		ifFalse: [ ^ SmartPath forRequest: request :: handle ]
+! !
 
 !CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:47:22'!
 initialize
@@ -117,7 +140,7 @@ forRequest: aRequest
 	
 	^ self new request: aRequest; yourself! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/11/2019 23:41:45'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:24:03'!
 actionSelector
 	|parsedPath|
 
@@ -130,7 +153,7 @@ actionSelector
 				ifFalse: [ ^ parsedPath last :: append: ':' :: asSymbol ]
 		]! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/10/2019 05:32:46'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:23:51'!
 controllerClass
 	|parsedPath|
 
@@ -144,7 +167,7 @@ controllerClass
 				ifNone: [ request send404Response ]
 		]! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/10/2019 05:32:36'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:48:45'!
 handle
 	
 	^ {self httpMethods . [ :aRequest | self controllerClass new perform: self actionSelector with: aRequest ]}! !
@@ -153,6 +176,24 @@ handle
 httpMethods
 
 	^ { request method }! !
+
+!StaticPath class methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:41:32'!
+anyCanHandle: aRequest
+
+	^ self allSubclasses anySatisfy: [ :staticPathClass | staticPathClass canHandle: aRequest ]! !
+
+!StaticPath class methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:41:47'!
+canHandle: aRequest
+
+	self subclassResponsibility! !
+
+!StaticPath class methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 18:24:54'!
+forRequest: aRequest
+	| staticRouteForRequest |
+	
+	staticRouteForRequest _ self subclasses detect: [ :staticPath | staticPath canHandle: aRequest ].
+	
+	^ staticRouteForRequest new request: aRequest; yourself! !
 
 !RootController methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 04:24:52'!
 index: request
@@ -173,3 +214,29 @@ index: request
 		'</div>') 
 			
 			contentType: 'text/html; charset=utf-8'! !
+
+!View methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 22:00:47'!
+body
+
+	self subclassResponsibility ! !
+
+!View methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 22:03:26'!
+cssFrameworkCDN
+
+	^ 'https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css'! !
+
+!View methodsFor: 'as yet unclassified' stamp: 'GC 4/19/2019 11:47:16'!
+render
+	
+	^	'<!!doctype html>
+		<html>
+			<head>
+				<meta charset="utf-8">
+   	            <meta name="viewport" content="width=device-width, initial-scale=1">     
+	                  <title>CoDNaS Q</title>               
+	                  <link rel="stylesheet" href="', self cssFrameworkCDN,'">
+			</head>
+			<body>', 
+				self body,
+			'</body>
+		</html>'! !
