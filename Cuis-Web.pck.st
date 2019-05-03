@@ -1,9 +1,10 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3696] on 19 April 2019 at 11:47:19 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3724] on 3 May 2019 at 3:39:43 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 7!
+!provides: 'Cuis-Web' 1 8!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
+SystemOrganization addCategory: #'Cuis-Web-Components'!
 
 
 !classDefinition: #DynamicRoutingWebServer category: #'Cuis-Web'!
@@ -76,6 +77,56 @@ Object subclass: #View
 View class
 	instanceVariableNames: ''!
 
+!classDefinition: #Div category: #'Cuis-Web-Components'!
+Object subclass: #Div
+	instanceVariableNames: 'content'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Div class' category: #'Cuis-Web-Components'!
+Div class
+	instanceVariableNames: ''!
+
+!classDefinition: #HTMLElement category: #'Cuis-Web-Components'!
+Object subclass: #HTMLElement
+	instanceVariableNames: 'textContent'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'HTMLElement class' category: #'Cuis-Web-Components'!
+HTMLElement class
+	instanceVariableNames: ''!
+
+!classDefinition: #Heading category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Heading
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Heading class' category: #'Cuis-Web-Components'!
+Heading class
+	instanceVariableNames: ''!
+
+!classDefinition: #Hyperlink category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Hyperlink
+	instanceVariableNames: 'href'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Hyperlink class' category: #'Cuis-Web-Components'!
+Hyperlink class
+	instanceVariableNames: ''!
+
+!classDefinition: #LineBreak category: #'Cuis-Web-Components'!
+HTMLElement subclass: #LineBreak
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'LineBreak class' category: #'Cuis-Web-Components'!
+LineBreak class
+	instanceVariableNames: ''!
+
 
 !DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 18:20:54'!
 request: request
@@ -140,10 +191,10 @@ forRequest: aRequest
 	
 	^ self new request: aRequest; yourself! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:24:03'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:30:42'!
 actionSelector
 	|parsedPath|
-
+	
 	(request isGetRequest and: [ request url = '/' ])
 		ifTrue: [ ^ #index: ]
 		ifFalse: [
@@ -167,7 +218,7 @@ controllerClass
 				ifNone: [ request send404Response ]
 		]! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 15:48:45'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:21:04'!
 handle
 	
 	^ {self httpMethods . [ :aRequest | self controllerClass new perform: self actionSelector with: aRequest ]}! !
@@ -215,6 +266,14 @@ index: request
 			
 			contentType: 'text/html; charset=utf-8'! !
 
+!RootController methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:22:34'!
+respondSuccessfully: aRequest with: htmlContent
+	|renderedContent|
+	
+	renderedContent _ htmlContent render.
+
+	aRequest send200Response: renderedContent contentType: 'text/html; charset=utf-8'! !
+
 !View methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 22:00:47'!
 body
 
@@ -240,3 +299,82 @@ render
 				self body,
 			'</body>
 		</html>'! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:45:22'!
+content: htmlElements
+
+	content _ htmlElements ! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:54:51'!
+render
+	| renderedContents|
+	
+	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
+
+	^ '<div>', renderedContents, '</div>'! !
+
+!Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:45:12'!
+containing: htmlElements
+
+	^ self new :: content: htmlElements! !
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:35:36'!
+textContent: aTextContent
+
+	textContent _ aTextContent ! !
+
+!HTMLElement class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:34:59'!
+render
+	
+	self subclassResponsibility ! !
+
+!HTMLElement class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:48:53'!
+with: textContent
+
+	^ self new :: textContent: textContent! !
+
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:00:15'!
+render
+
+	^ '<h1>', textContent, '</h1>'! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:40:39'!
+href: destinationAddress
+
+	href _ destinationAddress! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:42:08'!
+render
+
+	^ '<a href="', href, '">', textContent, '</a>'! !
+
+!Hyperlink class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:43:00'!
+to: addressDestination with: textContent
+
+	^ self with: textContent :: href: addressDestination! !
+
+!LineBreak class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:08:22'!
+render
+
+	^ '<br>'! !
+
+!String methodsFor: '*Cuis-Web' stamp: 'GC 5/3/2019 03:32:13'!
+substrings: separators
+	"Answer an array of non-empty substrings from the receiver separated by
+	one or more characters from the 'separators' argument collection."
+
+	| substrings substringStart |
+	substrings := (Array new: 10) writeStream.
+	1 to: self size do: [ :i | 
+		| nextChar |
+		nextChar := self at: i.
+		(separators includes: nextChar)
+			ifTrue: [
+				substringStart
+					ifNotNil: [
+						substrings nextPut: (self copyFrom: substringStart to: i - 1).
+						substringStart := nil ] ]
+			ifFalse: [ substringStart ifNil: [ substringStart := i ] ] ].
+	substringStart
+		ifNotNil: [ substrings nextPut: (self copyFrom: substringStart to: self size) ].
+	^ substrings contents! !
