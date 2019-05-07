@@ -6,5 +6,9 @@ Cuis Web is a microframework web for [Cuis Smalltalk](https://github.com/Cuis-Sm
 
 1. You'll need to download Cuis Smalltalk, you can follow the [official Cuis Smalltalk guide](https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev#setting-up-cuis-in-your-machine).
 2. Once you have Cuis Smalltalk running you have to drag and drop the [Cuis-Web.pck.st](https://github.com/gstn-caruso/cuis-web/blob/master/Cuis-Web.pck.st) inside Cuis.
+3. Start the server performing `CuisWebApplication start` on a workspace.
+4. Go to http://localhost:8080
 
+## I want to know more!
 
+You can go to [the wiki](https://github.com/gstn-caruso/cuis-web/wiki) to learn how to do more.
