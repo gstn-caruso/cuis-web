@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3741] on 18 May 2019 at 3:12:07 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3741] on 18 May 2019 at 6:50:36 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 10!
+!provides: 'Cuis-Web' 1 13!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -90,7 +90,7 @@ View class
 
 !classDefinition: #Div category: #'Cuis-Web-Components'!
 Object subclass: #Div
-	instanceVariableNames: 'content'
+	instanceVariableNames: 'content cssClasses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -100,7 +100,7 @@ Div class
 
 !classDefinition: #FormInput category: #'Cuis-Web-Components'!
 Object subclass: #FormInput
-	instanceVariableNames: 'type name value placeholder'
+	instanceVariableNames: 'type name value placeholder css'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -148,14 +148,64 @@ HTMLElement subclass: #LineBreak
 LineBreak class
 	instanceVariableNames: ''!
 
+!classDefinition: #Paragraph category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Paragraph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Paragraph class' category: #'Cuis-Web-Components'!
+Paragraph class
+	instanceVariableNames: ''!
+
+!classDefinition: #Smaller category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Smaller
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Smaller class' category: #'Cuis-Web-Components'!
+Smaller class
+	instanceVariableNames: ''!
+
+!classDefinition: #Span category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Span
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Span class' category: #'Cuis-Web-Components'!
+Span class
+	instanceVariableNames: ''!
+
+!classDefinition: #Header category: #'Cuis-Web-Components'!
+Object subclass: #Header
+	instanceVariableNames: 'content'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Header class' category: #'Cuis-Web-Components'!
+Header class
+	instanceVariableNames: ''!
+
 !classDefinition: #HtmlForm category: #'Cuis-Web-Components'!
 Object subclass: #HtmlForm
-	instanceVariableNames: 'fieldsets action method enctype'
+	instanceVariableNames: 'action method enctype contents'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'HtmlForm class' category: #'Cuis-Web-Components'!
 HtmlForm class
+	instanceVariableNames: ''!
+
+!classDefinition: #Table category: #'Cuis-Web-Components'!
+Object subclass: #Table
+	instanceVariableNames: 'headers rows'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Table class' category: #'Cuis-Web-Components'!
+Table class
 	instanceVariableNames: ''!
 
 
@@ -210,10 +260,10 @@ start
 
 	webServer listenOn: self defaultPort! !
 
-!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/30/2019 18:03:29'!
+!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:44:31'!
 stop
 
-	webServer destroy! !
+	WebClient allInstancesDo: [ :webClient | webClient destroy ]! !
 
 !CuisWebApplication methodsFor: 'accessing' stamp: 'GC 3/31/2019 03:57:58'!
 defaultPort
@@ -330,9 +380,9 @@ index: request
 			
 			contentType: 'text/html; charset=utf-8'! !
 
-!RootController methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:22:34'!
+!RootController methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:41:00'!
 respondSuccessfully: aRequest with: htmlContent
-	|renderedContent|
+	|header renderedContent|
 	
 	renderedContent _ htmlContent render.
 
@@ -348,7 +398,7 @@ cssFrameworkCDN
 
 	^ 'https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css'! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 4/19/2019 11:47:16'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:50:05'!
 render
 	
 	^	'<!!doctype html>
@@ -364,41 +414,73 @@ render
 			'</body>
 		</html>'! !
 
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:28:42'!
+class: someCSSClasses content: htmlElements
+
+	content _ htmlElements.
+	cssClasses _ someCSSClasses! !
+
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:45:22'!
 content: htmlElements
 
 	content _ htmlElements ! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:54:51'!
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:32:21'!
+cssClasses
+
+	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 12:47:52'!
+initialize
+
+	cssClasses _ #()! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:26:17'!
 render
 	| renderedContents|
 	
 	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
 
-	^ '<div>', renderedContents, '</div>'! !
+	^ '<div class="', self cssClasses ,'">', renderedContents, '</div>'! !
 
-!Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:45:12'!
+!Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:28:45'!
+class: cssClasses containing: htmlElements
+
+	^ self new :: class: cssClasses content: htmlElements! !
+
+!Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:51:12'!
 containing: htmlElements
 
-	^ self new :: content: htmlElements! !
+	^ self class: #() containing: htmlElements ! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:19:25'!
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:45:34'!
+cssClasses
+
+	^ css inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:45:59'!
 render
 
-	^ '<input type="', type, '" name="', name, '" value="', value, '"', 'placeholder="', placeholder,'">'! !
+	^ '<input class="', self cssClasses ,'" type="', type, '" name="', name, '" value="', value, '"', 'placeholder="', placeholder,'">'! !
 
 !FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:51:23'!
 type: inputType name: inputName value: inputValue 
 
 	self type: inputType name: inputName value: inputValue placeholder: ''! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:17:29'!
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:43:03'!
 type: inputType name: inputName value: inputValue placeholder: aPlaceholder
+
+	self type: inputType name: inputName value: inputValue placeholder: aPlaceholder css: #()! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:42:45'!
+type: inputType name: inputName value: inputValue placeholder: aPlaceholder css: cssClasses
 
 	type _ inputType.
 	name _ inputName.
 	value _ inputValue.
-	placeholder _ aPlaceholder! !
+	placeholder _ aPlaceholder.
+	css _ cssClasses! !
 
 !FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:38:06'!
 type: inputType
@@ -414,6 +496,11 @@ type: inputType name: inputName
 type: inputType name: inputName placeholder: aPlaceholder
 
 	^ self new type: inputType name: inputName value: '' placeholder: aPlaceholder ! !
+
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:43:27'!
+type: inputType name: inputName placeholder: aPlaceholder css: cssClasses
+
+	^ self new type: inputType name: inputName value: '' placeholder: aPlaceholder css: cssClasses! !
 
 !FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:37:05'!
 type: inputType name: inputName value: inputValue
@@ -487,32 +574,90 @@ render
 
 	^ '<br>'! !
 
-!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:31:40'!
-action: endpoint method: httpMethod enctype: formEnctype fieldsets: formContent
+!Paragraph methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:28:07'!
+render
+
+	^ '<p>', textContent, '</p>'! !
+
+!Smaller methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 14:30:20'!
+render
+
+	^ '<small>', textContent, '</small>'! !
+
+!Span methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:29:12'!
+render
+
+	^ '<span>', textContent, '</span>'! !
+
+!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:38:17'!
+content: htmlElements
+
+	content _ htmlElements ! !
+
+!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:38:49'!
+render
+	| renderedContents|
+	
+	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
+
+	^ '<header>', renderedContents, '</header>'! !
+
+!Header class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:49:27'!
+containing: htmlElements
+
+	^ self new :: content: htmlElements ! !
+
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:02:25'!
+action: endpoint method: httpMethod enctype: formEnctype containing: formContent
 
 	action _ endpoint.
 	method _ httpMethod.
 	enctype _ formEnctype.
-	fieldsets _ formContent! !
+	contents _ formContent! !
 
-!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:26:27'!
-fieldsets
-
-	^ fieldsets render! !
-
-!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:43:14'!
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:03:00'!
 render
 	
-	^ '<form action="', action,'" method="', method,'" enctype="', enctype, '">
-	   	<fieldset>',
-			self fieldsets,
-			'</fieldset>
- 	   </form>'! !
+	^ '<form action="', action,'" method="', method,'" enctype="', enctype, '">',
+		contents render,
+ 	   '</form>'! !
 
-!HtmlForm class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:43:29'!
-action: endpoint method: httpMethod enctype: formEnctype fieldsets: formContent
+!HtmlForm class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:01:43'!
+action: endpoint method: httpMethod enctype: formEnctype containing: formContent
 
-	^ self new :: action: endpoint method: httpMethod enctype: formEnctype fieldsets: formContent! !
+	^ self new :: action: endpoint method: httpMethod enctype: formEnctype containing: formContent! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:19:12'!
+headers: tableHeaders rows: tableRows
+
+	headers _ tableHeaders .
+	rows _ tableRows ! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:45:19'!
+render
+
+	^ '<table>', self renderHeader, self renderRows, '</table>'! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:40:16'!
+renderHeader
+
+	^ '<thead>', (headers inject: '' into: [ :allHeaders :header | allHeaders, '<th>', header, '</th>' ]), '</thead>'! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:44:32'!
+renderRows
+
+	^ '<tbody>', 
+		(rows inject: '' into: [ :allRows :row | 
+			allRows, '<tr>', 
+				(row inject: '' into: [ :allRowDetails :rowDetail | allRowDetails, '<td>', rowDetail, '</td>' ]), 
+			'</tr>'
+		]),
+	  '</tbody>'! !
+
+!Table class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:18:56'!
+headers: tableHeaders rows: tableRows
+
+	^ self new :: headers: tableHeaders rows: tableRows! !
 
 !String methodsFor: '*Cuis-Web' stamp: 'GC 5/3/2019 03:32:13'!
 substrings: separators
