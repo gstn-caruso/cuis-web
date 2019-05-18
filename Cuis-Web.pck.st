@@ -1,11 +1,22 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3724] on 3 May 2019 at 3:39:43 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3741] on 18 May 2019 at 3:12:07 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 8!
+!provides: 'Cuis-Web' 1 10!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
+SystemOrganization addCategory: #'Cuis-Web-Components-Tests'!
 
+
+!classDefinition: #HeadingTest category: #'Cuis-Web-Components-Tests'!
+TestCase subclass: #HeadingTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components-Tests'!
+!classDefinition: 'HeadingTest class' category: #'Cuis-Web-Components-Tests'!
+HeadingTest class
+	instanceVariableNames: ''!
 
 !classDefinition: #DynamicRoutingWebServer category: #'Cuis-Web'!
 WebServer subclass: #DynamicRoutingWebServer
@@ -87,6 +98,16 @@ Object subclass: #Div
 Div class
 	instanceVariableNames: ''!
 
+!classDefinition: #FormInput category: #'Cuis-Web-Components'!
+Object subclass: #FormInput
+	instanceVariableNames: 'type name value placeholder'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'FormInput class' category: #'Cuis-Web-Components'!
+FormInput class
+	instanceVariableNames: ''!
+
 !classDefinition: #HTMLElement category: #'Cuis-Web-Components'!
 Object subclass: #HTMLElement
 	instanceVariableNames: 'textContent'
@@ -99,7 +120,7 @@ HTMLElement class
 
 !classDefinition: #Heading category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Heading
-	instanceVariableNames: ''
+	instanceVariableNames: 'level'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -127,13 +148,56 @@ HTMLElement subclass: #LineBreak
 LineBreak class
 	instanceVariableNames: ''!
 
+!classDefinition: #HtmlForm category: #'Cuis-Web-Components'!
+Object subclass: #HtmlForm
+	instanceVariableNames: 'fieldsets action method enctype'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'HtmlForm class' category: #'Cuis-Web-Components'!
+HtmlForm class
+	instanceVariableNames: ''!
 
-!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 18:20:54'!
-request: request
+
+!HeadingTest methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 00:01:34'!
+aTextContent
+
+	^ 'i am a text content'! !
+
+!HeadingTest methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 00:01:51'!
+test_01_with_a_text_content_returns_h1_with_that_content
+	| heading |
+
+	heading _ Heading with: self aTextContent.
 	
-	(StaticPath anyCanHandle: request)
-		ifTrue: [ ^ StaticPath forRequest: request :: handle ]
-		ifFalse: [ ^ SmartPath forRequest: request :: handle ]
+	self assert: heading render equals: '<h1>', self aTextContent, '</h1>'! !
+
+!HeadingTest methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 00:03:22'!
+test_02_with_a_given_level_returns_heading_with_that_level
+	| heading headingLevel |
+	
+	headingLevel _ 4.
+	heading _ Heading with: (self aTextContent) level: headingLevel.
+	
+	self assert: heading render equals: '<h', headingLevel asString, '>', self aTextContent, '</h', headingLevel asString, '>'! !
+
+!HeadingTest methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 00:06:55'!
+test_03_with_a_given_level_bigger_than_6_fails
+	| headingLevel |
+	
+	headingLevel _ 7.
+	
+	self should: [ Heading with: (self aTextContent) level: headingLevel ]
+		 raise: Error
+	       withMessageText: 'Heading tags can not go futher than level 6'! !
+
+!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 5/4/2019 08:36:12'!
+classFor: request
+     ^(StaticPath anyCanHandle: request) ifTrue: [ StaticPath ] ifFalse: [ SmartPath ]! !
+
+!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 5/4/2019 08:37:02'!
+request: request
+	^ self classFor: request  :: forRequest: request :: handle
 ! !
 
 !CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:47:22'!
@@ -318,25 +382,90 @@ containing: htmlElements
 
 	^ self new :: content: htmlElements! !
 
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:19:25'!
+render
+
+	^ '<input type="', type, '" name="', name, '" value="', value, '"', 'placeholder="', placeholder,'">'! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:51:23'!
+type: inputType name: inputName value: inputValue 
+
+	self type: inputType name: inputName value: inputValue placeholder: ''! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:17:29'!
+type: inputType name: inputName value: inputValue placeholder: aPlaceholder
+
+	type _ inputType.
+	name _ inputName.
+	value _ inputValue.
+	placeholder _ aPlaceholder! !
+
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:38:06'!
+type: inputType
+
+	^ self new type: inputType name: '' value: '' ! !
+
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:38:02'!
+type: inputType name: inputName
+
+	^ self new type: inputType name: inputName value: '' ! !
+
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:53:17'!
+type: inputType name: inputName placeholder: aPlaceholder
+
+	^ self new type: inputType name: inputName value: '' placeholder: aPlaceholder ! !
+
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:37:05'!
+type: inputType name: inputName value: inputValue
+
+	^ self new type: inputType name: inputName value: inputValue ! !
+
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:16:56'!
+type: inputType placeholder: aPlaceholder
+
+	^ self new type: inputType name: '' value: ''  placeholder: aPlaceholder! !
+
 !HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:35:36'!
 textContent: aTextContent
 
 	textContent _ aTextContent ! !
 
-!HTMLElement class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:34:59'!
-render
-	
-	self subclassResponsibility ! !
-
-!HTMLElement class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:48:53'!
+!HTMLElement class methodsFor: 'instance creation' stamp: 'GC 5/3/2019 02:48:53'!
 with: textContent
 
 	^ self new :: textContent: textContent! !
 
-!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:00:15'!
+!HTMLElement class methodsFor: 'object serialization' stamp: 'GC 5/3/2019 02:34:59'!
+render
+	
+	self subclassResponsibility ! !
+
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/7/2019 23:46:09'!
+initialize
+
+	level _ 1! !
+
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/7/2019 23:46:25'!
+level
+
+	^ level asString ! !
+
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/7/2019 23:47:16'!
+level: headingLevel
+
+	level _ headingLevel ! !
+
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/7/2019 23:47:02'!
 render
 
-	^ '<h1>', textContent, '</h1>'! !
+	^ '<h', self level, '>', textContent, '</h', self level, '>'! !
+
+!Heading class methodsFor: 'instance creation' stamp: 'GC 5/8/2019 00:11:26'!
+with: textContent level: headingLevel
+	
+	(headingLevel > 6) ifTrue: [ Error signal: 'Heading tags can not go futher than level 6' ].
+
+	^ self with: textContent :: level: headingLevel ! !
 
 !Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:40:39'!
 href: destinationAddress
@@ -348,15 +477,42 @@ render
 
 	^ '<a href="', href, '">', textContent, '</a>'! !
 
-!Hyperlink class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:43:00'!
+!Hyperlink class methodsFor: 'instance creation' stamp: 'GC 5/3/2019 02:43:00'!
 to: addressDestination with: textContent
 
 	^ self with: textContent :: href: addressDestination! !
 
-!LineBreak class methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:08:22'!
+!LineBreak class methodsFor: 'object serialization' stamp: 'GC 5/3/2019 03:08:22'!
 render
 
 	^ '<br>'! !
+
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:31:40'!
+action: endpoint method: httpMethod enctype: formEnctype fieldsets: formContent
+
+	action _ endpoint.
+	method _ httpMethod.
+	enctype _ formEnctype.
+	fieldsets _ formContent! !
+
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:26:27'!
+fieldsets
+
+	^ fieldsets render! !
+
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:43:14'!
+render
+	
+	^ '<form action="', action,'" method="', method,'" enctype="', enctype, '">
+	   	<fieldset>',
+			self fieldsets,
+			'</fieldset>
+ 	   </form>'! !
+
+!HtmlForm class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:43:29'!
+action: endpoint method: httpMethod enctype: formEnctype fieldsets: formContent
+
+	^ self new :: action: endpoint method: httpMethod enctype: formEnctype fieldsets: formContent! !
 
 !String methodsFor: '*Cuis-Web' stamp: 'GC 5/3/2019 03:32:13'!
 substrings: separators
