@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3741] on 18 May 2019 at 6:50:36 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3741] on 23 May 2019 at 9:41:34 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 13!
+!provides: 'Cuis-Web' 1 14!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -196,6 +196,16 @@ Object subclass: #HtmlForm
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'HtmlForm class' category: #'Cuis-Web-Components'!
 HtmlForm class
+	instanceVariableNames: ''!
+
+!classDefinition: #Select category: #'Cuis-Web-Components'!
+Object subclass: #Select
+	instanceVariableNames: 'options name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Select class' category: #'Cuis-Web-Components'!
+Select class
 	instanceVariableNames: ''!
 
 !classDefinition: #Table category: #'Cuis-Web-Components'!
@@ -626,6 +636,36 @@ render
 action: endpoint method: httpMethod enctype: formEnctype containing: formContent
 
 	^ self new :: action: endpoint method: httpMethod enctype: formEnctype containing: formContent! !
+
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:53'!
+name: selectName
+
+	name _ selectName ! !
+
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:36:08'!
+options: selectOptions
+
+	options _ selectOptions ! !
+
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:54:22'!
+render
+
+	^ '<select name="', name, '">',
+		(options inject: '' into: [ :allOptions :option | 
+			allOptions, '<option value="', option first ,'">', option second, '</option>'
+		 ]),
+	  '</select>'! !
+
+!Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:57'!
+name: selectName withOptions: selectOptions
+
+	^ self new :: options: selectOptions :: name: selectName! !
+
+!Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:53:53'!
+withOptions: selectOptions
+
+	^ self name: '' withOptions: selectOptions
+! !
 
 !Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:19:12'!
 headers: tableHeaders rows: tableRows
