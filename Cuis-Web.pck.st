@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3741] on 23 May 2019 at 9:41:34 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3762] on 24 May 2019 at 1:32:43 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 14!
+!provides: 'Cuis-Web' 1 16!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -180,7 +180,7 @@ Span class
 
 !classDefinition: #Header category: #'Cuis-Web-Components'!
 Object subclass: #Header
-	instanceVariableNames: 'content'
+	instanceVariableNames: 'content cssClasses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -210,7 +210,7 @@ Select class
 
 !classDefinition: #Table category: #'Cuis-Web-Components'!
 Object subclass: #Table
-	instanceVariableNames: 'headers rows'
+	instanceVariableNames: 'headers rows style'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -604,18 +604,38 @@ content: htmlElements
 
 	content _ htmlElements ! !
 
-!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:38:49'!
+!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/23/2019 23:41:34'!
+css: someCSSClasses
+
+	cssClasses _ someCSSClasses! !
+
+!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/23/2019 23:42:59'!
+cssClasses
+
+	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+
+!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/23/2019 23:42:21'!
+initialize
+
+	cssClasses _ #()! !
+
+!Header methodsFor: 'as yet unclassified' stamp: 'GC 5/23/2019 23:43:12'!
 render
 	| renderedContents|
 	
 	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
 
-	^ '<header>', renderedContents, '</header>'! !
+	^ '<header class="', self cssClasses,'">', renderedContents, '</header>'! !
 
 !Header class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:49:27'!
 containing: htmlElements
 
 	^ self new :: content: htmlElements ! !
+
+!Header class methodsFor: 'as yet unclassified' stamp: 'GC 5/23/2019 23:43:33'!
+css: cssClasses containing: htmlElements
+
+	^ self new :: css: cssClasses; content: htmlElements ! !
 
 !HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:02:25'!
 action: endpoint method: httpMethod enctype: formEnctype containing: formContent
@@ -673,10 +693,15 @@ headers: tableHeaders rows: tableRows
 	headers _ tableHeaders .
 	rows _ tableRows ! !
 
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:45:19'!
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/24/2019 01:24:50'!
+initialize
+
+	style _ ''! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/24/2019 01:18:47'!
 render
 
-	^ '<table>', self renderHeader, self renderRows, '</table>'! !
+	^ '<table style="',style,'">', self renderHeader, self renderRows, '</table>'! !
 
 !Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:40:16'!
 renderHeader
@@ -693,6 +718,11 @@ renderRows
 			'</tr>'
 		]),
 	  '</tbody>'! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/24/2019 01:18:27'!
+style: cssStyle
+
+	style _ cssStyle ! !
 
 !Table class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:18:56'!
 headers: tableHeaders rows: tableRows
