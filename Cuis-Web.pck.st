@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3762] on 24 May 2019 at 1:32:43 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3762] on 30 May 2019 at 1:49:11 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 16!
+!provides: 'Cuis-Web' 1 17!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -370,25 +370,9 @@ forRequest: aRequest
 	
 	^ staticRouteForRequest new request: aRequest; yourself! !
 
-!RootController methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 04:24:52'!
+!RootController methodsFor: 'as yet unclassified' stamp: 'GC 5/30/2019 01:32:42'!
 index: request
-	|queryParams queryParamsList today currentDate |
-	
-	queryParams _ request fields.
-	queryParamsList _ ''.
-	
-	queryParams associationsDo: [ :association | queryParamsList _ queryParamsList, '<li>', association asString, '</li>' ].
-	today _ DateAndTime now.
-	currentDate _ today dayOfWeekName, ' ', today hour asString, ':', today minute asString padded: #left to: 2 with: $0.
-	 
-	request send200Response: 
-		('<div>
-			<h1>Today is ', currentDate, '</h1>',
-			queryParamsList,
-			'<a href="/proteins">Proteins Index!!</a>',
-		'</div>') 
-			
-			contentType: 'text/html; charset=utf-8'! !
+	self shouldBeImplemented ! !
 
 !RootController methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:41:00'!
 respondSuccessfully: aRequest with: htmlContent
