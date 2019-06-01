@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3762] on 30 May 2019 at 1:49:11 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3781] on 1 June 2019 at 3:32:22 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 17!
+!provides: 'Cuis-Web' 1 18!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -37,6 +37,16 @@ Object subclass: #CuisWebApplication
 !classDefinition: 'CuisWebApplication class' category: #'Cuis-Web'!
 CuisWebApplication class
 	instanceVariableNames: 'instance'!
+
+!classDefinition: #Paginate category: #'Cuis-Web'!
+Object subclass: #Paginate
+	instanceVariableNames: 'elements'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web'!
+!classDefinition: 'Paginate class' category: #'Cuis-Web'!
+Paginate class
+	instanceVariableNames: ''!
 
 !classDefinition: #Path category: #'Cuis-Web'!
 Object subclass: #Path
@@ -130,7 +140,7 @@ Heading class
 
 !classDefinition: #Hyperlink category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Hyperlink
-	instanceVariableNames: 'href'
+	instanceVariableNames: 'href name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -300,6 +310,34 @@ start
 	
 	instance start! !
 
+!Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:57:49'!
+atPage: pageNumber
+	| startingIndex |
+	
+	startingIndex _ (pageNumber asNumber) * self elementsPerPage.
+	
+	^ elements copyFrom: startingIndex to: (startingIndex + (self elementsPerPage - 1))! !
+
+!Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:54:38'!
+elements: aCollection
+
+	elements _ aCollection asOrderedCollection! !
+
+!Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:49:29'!
+elementsPerPage
+
+	^ 10! !
+
+!Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:42:18'!
+totalPages
+
+	^ elements size / 10 :: ceiling ! !
+
+!Paginate class methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:38:36'!
+: aCollection
+
+	^ self new :: elements: aCollection! !
+
 !Path methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:51:44'!
 handle
 
@@ -392,7 +430,7 @@ cssFrameworkCDN
 
 	^ 'https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css'! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:50:05'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 03:17:15'!
 render
 	
 	^	'<!!doctype html>
@@ -401,12 +439,21 @@ render
 				<meta charset="utf-8">
    	            <meta name="viewport" content="width=device-width, initial-scale=1">     
 	                  <title>CoDNaS Q</title>               
-	                  <link rel="stylesheet" href="', self cssFrameworkCDN,'">
+	                  <link rel="stylesheet" href="{1}">
+				<script>{2}</script>
 			</head>
-			<body>', 
-				self body,
-			'</body>
-		</html>'! !
+			<body>{3}</body>
+		</html>' format: { self cssFrameworkCDN . self scripts . self body }! !
+
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 03:17:49'!
+scripts
+
+	''! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:24:41'!
+addContent: htmlElement
+
+	content add: htmlElement ! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:28:42'!
 class: someCSSClasses content: htmlElements
@@ -424,10 +471,10 @@ cssClasses
 
 	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 12:47:52'!
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:25:56'!
 initialize
 
-	cssClasses _ #()! !
+	cssClasses _ OrderedCollection new! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:26:17'!
 render
@@ -496,6 +543,11 @@ type: inputType name: inputName placeholder: aPlaceholder css: cssClasses
 
 	^ self new type: inputType name: inputName value: '' placeholder: aPlaceholder css: cssClasses! !
 
+!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 03:30:51'!
+type: inputType name: inputName placeholder: aPlaceholder value: aValue css: cssClasses
+
+	^ self new type: inputType name: inputName value: aValue placeholder: aPlaceholder css: cssClasses! !
+
 !FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:37:05'!
 type: inputType name: inputName value: inputValue
 
@@ -553,10 +605,20 @@ href: destinationAddress
 
 	href _ destinationAddress! !
 
-!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:42:08'!
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:35:16'!
+name: anHTMLElementName
+
+	name _ anHTMLElementName! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:37:49'!
 render
 
-	^ '<a href="', href, '">', textContent, '</a>'! !
+	^ '<a name="{1}" href="{2}">{3}</a>' format: { name . href . textContent }! !
+
+!Hyperlink class methodsFor: 'instance creation' stamp: 'GC 6/1/2019 02:35:03'!
+name: anHTMLElementName to: addressDestination with: textContent
+
+	^ self with: textContent :: href: addressDestination :: name: anHTMLElementName! !
 
 !Hyperlink class methodsFor: 'instance creation' stamp: 'GC 5/3/2019 02:43:00'!
 to: addressDestination with: textContent
