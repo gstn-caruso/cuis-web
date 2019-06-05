@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3781] on 1 June 2019 at 3:32:22 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3784] on 5 June 2019 at 1:39:34 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 18!
+!provides: 'Cuis-Web' 1 19!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -100,7 +100,7 @@ View class
 
 !classDefinition: #Div category: #'Cuis-Web-Components'!
 Object subclass: #Div
-	instanceVariableNames: 'content cssClasses'
+	instanceVariableNames: 'id content cssClasses style'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -206,6 +206,16 @@ Object subclass: #HtmlForm
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'HtmlForm class' category: #'Cuis-Web-Components'!
 HtmlForm class
+	instanceVariableNames: ''!
+
+!classDefinition: #PlainHTML category: #'Cuis-Web-Components'!
+Object subclass: #PlainHTML
+	instanceVariableNames: 'htmlCode'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'PlainHTML class' category: #'Cuis-Web-Components'!
+PlainHTML class
 	instanceVariableNames: ''!
 
 !classDefinition: #Select category: #'Cuis-Web-Components'!
@@ -430,7 +440,7 @@ cssFrameworkCDN
 
 	^ 'https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css'! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 03:17:15'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:31:10'!
 render
 	
 	^	'<!!doctype html>
@@ -440,15 +450,15 @@ render
    	            <meta name="viewport" content="width=device-width, initial-scale=1">     
 	                  <title>CoDNaS Q</title>               
 	                  <link rel="stylesheet" href="{1}">
-				<script>{2}</script>
+				{2}
 			</head>
 			<body>{3}</body>
 		</html>' format: { self cssFrameworkCDN . self scripts . self body }! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 03:17:49'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:26:46'!
 scripts
 
-	''! !
+	^ ''! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:24:41'!
 addContent: htmlElement
@@ -471,18 +481,30 @@ cssClasses
 
 	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:25:56'!
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:23:25'!
+id: elementId
+
+	id _ elementId ! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:36:10'!
 initialize
 
-	cssClasses _ OrderedCollection new! !
+	cssClasses _ OrderedCollection new.
+	id _ ''.
+	style _ ''.! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:26:17'!
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:38:30'!
 render
 	| renderedContents|
 	
 	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
 
-	^ '<div class="', self cssClasses ,'">', renderedContents, '</div>'! !
+	^ '<div id="{1}" class="{2}" style="{3}">{4}</div>' format: { id . self cssClasses . style . renderedContents}! !
+
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:36:24'!
+style: inlineStyle
+
+	style _ inlineStyle ! !
 
 !Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:28:45'!
 class: cssClasses containing: htmlElements
@@ -493,6 +515,11 @@ class: cssClasses containing: htmlElements
 containing: htmlElements
 
 	^ self class: #() containing: htmlElements ! !
+
+!Div class methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:23:16'!
+id: elementId containing: htmlElements
+
+	^ self new :: id: elementId; content: htmlElements! !
 
 !FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:45:34'!
 cssClasses
@@ -702,6 +729,21 @@ render
 action: endpoint method: httpMethod enctype: formEnctype containing: formContent
 
 	^ self new :: action: endpoint method: httpMethod enctype: formEnctype containing: formContent! !
+
+!PlainHTML methodsFor: 'as yet unclassified' stamp: 'GC 6/3/2019 23:26:58'!
+containing: someHtmlCode
+
+	htmlCode _ someHtmlCode ! !
+
+!PlainHTML methodsFor: 'as yet unclassified' stamp: 'GC 6/3/2019 23:26:38'!
+render
+
+	^ htmlCode! !
+
+!PlainHTML class methodsFor: 'as yet unclassified' stamp: 'GC 6/3/2019 23:26:17'!
+containing: htmlCode
+
+	^ self new :: containing: htmlCode ! !
 
 !Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:53'!
 name: selectName
