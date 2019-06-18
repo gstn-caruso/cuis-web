@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 17 June 2019 at 8:59:13 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 18 June 2019 at 5:44:45 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 22!
+!provides: 'Cuis-Web' 1 25!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -100,7 +100,7 @@ View class
 
 !classDefinition: #HTMLElement category: #'Cuis-Web-Components'!
 Object subclass: #HTMLElement
-	instanceVariableNames: 'textContent cssClasses'
+	instanceVariableNames: 'textContent cssClasses name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -120,7 +120,7 @@ Div class
 
 !classDefinition: #FileInput category: #'Cuis-Web-Components'!
 HTMLElement subclass: #FileInput
-	instanceVariableNames: 'name'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -130,7 +130,7 @@ FileInput class
 
 !classDefinition: #FormInput category: #'Cuis-Web-Components'!
 HTMLElement subclass: #FormInput
-	instanceVariableNames: 'name type value placeHolder'
+	instanceVariableNames: 'type value placeHolder'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -150,12 +150,22 @@ Heading class
 
 !classDefinition: #Hyperlink category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Hyperlink
-	instanceVariableNames: 'href name'
+	instanceVariableNames: 'href'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'Hyperlink class' category: #'Cuis-Web-Components'!
 Hyperlink class
+	instanceVariableNames: ''!
+
+!classDefinition: #Li category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Li
+	instanceVariableNames: 'content id'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Li class' category: #'Cuis-Web-Components'!
+Li class
 	instanceVariableNames: ''!
 
 !classDefinition: #LineBreak category: #'Cuis-Web-Components'!
@@ -180,7 +190,7 @@ Paragraph class
 
 !classDefinition: #Select category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Select
-	instanceVariableNames: 'options name'
+	instanceVariableNames: 'options'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -216,6 +226,16 @@ HTMLElement subclass: #Table
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'Table class' category: #'Cuis-Web-Components'!
 Table class
+	instanceVariableNames: ''!
+
+!classDefinition: #Ul category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Ul
+	instanceVariableNames: 'listItems id'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Ul class' category: #'Cuis-Web-Components'!
+Ul class
 	instanceVariableNames: ''!
 
 !classDefinition: #Header category: #'Cuis-Web-Components'!
@@ -295,10 +315,11 @@ test_03_with_a_given_level_bigger_than_6_fails
 classFor: request
      ^(StaticPath anyCanHandle: request) ifTrue: [ StaticPath ] ifFalse: [ SmartPath ]! !
 
-!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 5/4/2019 08:37:02'!
+!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 21:24:52'!
 request: request
-	^ self classFor: request  :: forRequest: request :: handle
-! !
+	^ [ self classFor: request  :: forRequest: request :: handle ]
+		on: Error
+		do: [ :anError | request send500Response: (self errorReportFor: anError) ]! !
 
 !CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:47:22'!
 initialize
@@ -340,13 +361,18 @@ start
 	
 	instance start! !
 
-!Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:57:49'!
+!Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 22:39:18'!
 atPage: pageNumber
-	| startingIndex |
+	| startingIndex lastIndex |
 	
-	startingIndex _ (pageNumber asNumber) * self elementsPerPage.
+	startingIndex _ (pageNumber = 1) 
+		ifTrue: [ 1 ] 
+		ifFalse: [ (pageNumber asNumber) * self elementsPerPage ].
+		
+	lastIndex _ (startingIndex + (self elementsPerPage - 1)).
+	lastIndex > elements size ifTrue: [ lastIndex _ elements size ].
 	
-	^ elements copyFrom: startingIndex to: (startingIndex + (self elementsPerPage - 1))! !
+	^ elements copyFrom: startingIndex to: lastIndex! !
 
 !Paginate methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 01:54:38'!
 elements: aCollection
@@ -475,7 +501,7 @@ cssInternalStyle
 
 	^''! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 17:29:52'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/18/2019 05:29:37'!
 render
 	
 	^	'<!!doctype html>
@@ -507,12 +533,18 @@ cssClasses
 
 	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
 
-!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:23:27'!
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/18/2019 02:31:40'!
 initialize
 
 	super initialize.
 	
+	name _ ''.
 	cssClasses _ OrderedCollection new! !
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/18/2019 02:31:26'!
+name: elementName
+
+	name _ elementName ! !
 
 !HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:35:36'!
 textContent: aTextContent
@@ -596,11 +628,6 @@ cssClasses
 
 	^ super cssClasses, ' file'! !
 
-!FileInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 16:08:56'!
-name: aName
-
-	name _ aName ! !
-
 !FileInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 16:30:45'!
 render
 
@@ -629,11 +656,6 @@ initialize
 	type _ ''.
 	placeHolder _ ''.
 	value _ ''! !
-
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:26:26'!
-name: aFormInputName
-
-	name _ aFormInputName ! !
 
 !FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:20:51'!
 placeHolder: aFormInputPlaceHolder
@@ -688,11 +710,6 @@ href: destinationAddress
 
 	href _ destinationAddress! !
 
-!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:35:16'!
-name: anHTMLElementName
-
-	name _ anHTMLElementName! !
-
 !Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:22:24'!
 render
 
@@ -708,20 +725,39 @@ to: addressDestination with: textContent
 
 	^ self with: textContent :: href: addressDestination! !
 
+!Li methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:53:17'!
+containing: someContent
+	
+	content _ someContent! !
+
+!Li methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:05:19'!
+initialize
+
+	super initialize.
+	name _ ''.
+	id _ ''! !
+
+!Li methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:56:35'!
+render
+	| renderedContents |
+	
+	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
+	
+	^ '<li class={1} name={2} id={3}>{4}</li>' format: { self cssClasses . name . id . renderedContents}! !
+
+!Li class methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:52:56'!
+containing: contents
+	^ self new containing: contents ! !
+
 !LineBreak class methodsFor: 'object serialization' stamp: 'GC 5/3/2019 03:08:22'!
 render
 
 	^ '<br>'! !
 
-!Paragraph methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 19:17:05'!
+!Paragraph methodsFor: 'as yet unclassified' stamp: 'GC 6/18/2019 02:42:55'!
 render
 
-	^ '<p class="{1}">{2}</p>' format: { self cssClasses . textContent }! !
-
-!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:53'!
-name: selectName
-
-	name _ selectName ! !
+	^ '<p class="{1}" name="{2}">{3}</p>' format: { self cssClasses . name . textContent }! !
 
 !Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:36:08'!
 options: selectOptions
@@ -753,10 +789,10 @@ render
 
 	^ '<small>', textContent, '</small>'! !
 
-!Span methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:29:12'!
+!Span methodsFor: 'as yet unclassified' stamp: 'GC 6/18/2019 05:38:44'!
 render
 
-	^ '<span>', textContent, '</span>'! !
+	^ '<span class="{1}" name="{2}">{3}</span>' format: { self cssClasses . name . textContent }! !
 
 !Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:19:12'!
 headers: tableHeaders rows: tableRows
@@ -789,6 +825,37 @@ renderRows
 headers: tableHeaders rows: tableRows
 
 	^ self new :: headers: tableHeaders rows: tableRows! !
+
+!Ul methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:02:40'!
+id: listId
+
+	id _ listId ! !
+
+!Ul methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:00:35'!
+initialize
+	
+	super initialize .
+	listItems _ OrderedCollection new! !
+
+!Ul methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:07:04'!
+listItems: someListIntems
+
+	listItems _ someListIntems ! !
+
+!Ul methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:54:12'!
+render
+
+	^ '<ul class="{1}" id={2} name={3}>{4}</ul>' format: { self cssClasses . id . name . self renderListItems }! !
+
+!Ul methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:03:25'!
+renderListItems
+
+	^ listItems inject: '' into: [:allContents :listItem | allContents, listItem render].! !
+
+!Ul class methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:06:47'!
+containing: listItems
+
+	^ self new :: listItems: listItems! !
 
 !Header methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:38:17'!
 content: htmlElements
