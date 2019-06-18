@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3784] on 5 June 2019 at 1:39:34 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 17 June 2019 at 8:59:13 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 19!
+!provides: 'Cuis-Web' 1 22!
 !requires: 'WebClient' 1 17 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
@@ -98,9 +98,19 @@ Object subclass: #View
 View class
 	instanceVariableNames: ''!
 
+!classDefinition: #HTMLElement category: #'Cuis-Web-Components'!
+Object subclass: #HTMLElement
+	instanceVariableNames: 'textContent cssClasses'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'HTMLElement class' category: #'Cuis-Web-Components'!
+HTMLElement class
+	instanceVariableNames: ''!
+
 !classDefinition: #Div category: #'Cuis-Web-Components'!
-Object subclass: #Div
-	instanceVariableNames: 'id content cssClasses style'
+HTMLElement subclass: #Div
+	instanceVariableNames: 'id content style'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -108,24 +118,24 @@ Object subclass: #Div
 Div class
 	instanceVariableNames: ''!
 
+!classDefinition: #FileInput category: #'Cuis-Web-Components'!
+HTMLElement subclass: #FileInput
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'FileInput class' category: #'Cuis-Web-Components'!
+FileInput class
+	instanceVariableNames: ''!
+
 !classDefinition: #FormInput category: #'Cuis-Web-Components'!
-Object subclass: #FormInput
-	instanceVariableNames: 'type name value placeholder css'
+HTMLElement subclass: #FormInput
+	instanceVariableNames: 'name type value placeHolder'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'FormInput class' category: #'Cuis-Web-Components'!
 FormInput class
-	instanceVariableNames: ''!
-
-!classDefinition: #HTMLElement category: #'Cuis-Web-Components'!
-Object subclass: #HTMLElement
-	instanceVariableNames: 'textContent'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Cuis-Web-Components'!
-!classDefinition: 'HTMLElement class' category: #'Cuis-Web-Components'!
-HTMLElement class
 	instanceVariableNames: ''!
 
 !classDefinition: #Heading category: #'Cuis-Web-Components'!
@@ -168,6 +178,16 @@ HTMLElement subclass: #Paragraph
 Paragraph class
 	instanceVariableNames: ''!
 
+!classDefinition: #Select category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Select
+	instanceVariableNames: 'options name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Select class' category: #'Cuis-Web-Components'!
+Select class
+	instanceVariableNames: ''!
+
 !classDefinition: #Smaller category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Smaller
 	instanceVariableNames: ''
@@ -186,6 +206,16 @@ HTMLElement subclass: #Span
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'Span class' category: #'Cuis-Web-Components'!
 Span class
+	instanceVariableNames: ''!
+
+!classDefinition: #Table category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Table
+	instanceVariableNames: 'headers rows style'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Table class' category: #'Cuis-Web-Components'!
+Table class
 	instanceVariableNames: ''!
 
 !classDefinition: #Header category: #'Cuis-Web-Components'!
@@ -208,6 +238,16 @@ Object subclass: #HtmlForm
 HtmlForm class
 	instanceVariableNames: ''!
 
+!classDefinition: #Nav category: #'Cuis-Web-Components'!
+Object subclass: #Nav
+	instanceVariableNames: 'content cssClasses'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Nav class' category: #'Cuis-Web-Components'!
+Nav class
+	instanceVariableNames: ''!
+
 !classDefinition: #PlainHTML category: #'Cuis-Web-Components'!
 Object subclass: #PlainHTML
 	instanceVariableNames: 'htmlCode'
@@ -216,26 +256,6 @@ Object subclass: #PlainHTML
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'PlainHTML class' category: #'Cuis-Web-Components'!
 PlainHTML class
-	instanceVariableNames: ''!
-
-!classDefinition: #Select category: #'Cuis-Web-Components'!
-Object subclass: #Select
-	instanceVariableNames: 'options name'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Cuis-Web-Components'!
-!classDefinition: 'Select class' category: #'Cuis-Web-Components'!
-Select class
-	instanceVariableNames: ''!
-
-!classDefinition: #Table category: #'Cuis-Web-Components'!
-Object subclass: #Table
-	instanceVariableNames: 'headers rows style'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Cuis-Web-Components'!
-!classDefinition: 'Table class' category: #'Cuis-Web-Components'!
-Table class
 	instanceVariableNames: ''!
 
 
@@ -430,17 +450,32 @@ respondSuccessfully: aRequest with: htmlContent
 
 	aRequest send200Response: renderedContent contentType: 'text/html; charset=utf-8'! !
 
+!RootController methodsFor: 'as yet unclassified' stamp: 'FJG 6/5/2019 23:03:18'!
+respondSuccessfully: aRequest withImage: fileEntryForImage
+	| imageData |
+	imageData _ fileEntryForImage binaryContents readStream.
+	aRequest stream200Response: imageData size: imageData size type: 'image/', fileEntryForImage extension! !
+
+!RootController methodsFor: 'as yet unclassified' stamp: 'FJG 6/5/2019 23:03:59'!
+respondSuccessfully: aRequest withImageIn: imagePath
+	^ self respondSuccessfully: aRequest withImage: imagePath asFileEntry! !
+
 !View methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 22:00:47'!
 body
 
 	self subclassResponsibility ! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 22:03:26'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 22:51:47'!
 cssFrameworkCDN
 
-	^ 'https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css'! !
+	^ 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css'! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:31:10'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 17:30:12'!
+cssInternalStyle
+
+	^''! !
+
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 17:29:52'!
 render
 	
 	^	'<!!doctype html>
@@ -450,15 +485,49 @@ render
    	            <meta name="viewport" content="width=device-width, initial-scale=1">     
 	                  <title>CoDNaS Q</title>               
 	                  <link rel="stylesheet" href="{1}">
-				{2}
+				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-utilities@0.3.6/css/bulma-utilities.css">
+				<link rel="stylesheet" href="{2}">
+				{3}
 			</head>
-			<body>{3}</body>
-		</html>' format: { self cssFrameworkCDN . self scripts . self body }! !
+			<body>{4}</body>
+		</html>' format: { self cssFrameworkCDN . self cssInternalStyle . self scripts . self body }! !
 
 !View methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:26:46'!
 scripts
 
 	^ ''! !
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:19:51'!
+css: someCssClasses
+
+	cssClasses _ someCssClasses ! !
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:19:39'!
+cssClasses
+
+	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:23:27'!
+initialize
+
+	super initialize.
+	
+	cssClasses _ OrderedCollection new! !
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:35:36'!
+textContent: aTextContent
+
+	textContent _ aTextContent ! !
+
+!HTMLElement class methodsFor: 'instance creation' stamp: 'GC 5/3/2019 02:48:53'!
+with: textContent
+
+	^ self new :: textContent: textContent! !
+
+!HTMLElement class methodsFor: 'object serialization' stamp: 'GC 5/3/2019 02:34:59'!
+render
+	
+	self subclassResponsibility ! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:24:41'!
 addContent: htmlElement
@@ -486,12 +555,13 @@ id: elementId
 
 	id _ elementId ! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:36:10'!
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 20:12:42'!
 initialize
 
-	cssClasses _ OrderedCollection new.
+	super initialize .
 	id _ ''.
-	style _ ''.! !
+	style _ ''.
+	content _ OrderedCollection new! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:38:30'!
 render
@@ -506,102 +576,88 @@ style: inlineStyle
 
 	style _ inlineStyle ! !
 
-!Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:28:45'!
-class: cssClasses containing: htmlElements
-
-	^ self new :: class: cssClasses content: htmlElements! !
-
-!Div class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:51:12'!
+!Div class methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:04:49'!
 containing: htmlElements
 
-	^ self class: #() containing: htmlElements ! !
+	^ self css: #() containing: htmlElements ! !
+
+!Div class methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:04:49'!
+css: cssClasses containing: htmlElements
+
+	^ self new :: class: cssClasses content: htmlElements! !
 
 !Div class methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:23:16'!
 id: elementId containing: htmlElements
 
 	^ self new :: id: elementId; content: htmlElements! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:45:34'!
+!FileInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 16:31:48'!
 cssClasses
 
-	^ css inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+	^ super cssClasses, ' file'! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:45:59'!
+!FileInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 16:08:56'!
+name: aName
+
+	name _ aName ! !
+
+!FileInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 16:30:45'!
 render
 
-	^ '<input class="', self cssClasses ,'" type="', type, '" name="', name, '" value="', value, '"', 'placeholder="', placeholder,'">'! !
+	^ '
+	<div class="{1}">
+	  <label class="file-label">
+	    <input class="file-input" type="file" name="{2}">
+	    <span class="file-cta">
+	      <span class="file-icon">
+	        <i class="fas fa-upload"></i>
+	      </span>
+	      <span class="file-label">
+	        Choose a file...
+	      </span>
+	    </span>
+	  </label>
+	</div>
+	' format: { self cssClasses . name}! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:51:23'!
-type: inputType name: inputName value: inputValue 
-
-	self type: inputType name: inputName value: inputValue placeholder: ''! !
-
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:43:03'!
-type: inputType name: inputName value: inputValue placeholder: aPlaceholder
-
-	self type: inputType name: inputName value: inputValue placeholder: aPlaceholder css: #()! !
-
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:42:45'!
-type: inputType name: inputName value: inputValue placeholder: aPlaceholder css: cssClasses
-
-	type _ inputType.
-	name _ inputName.
-	value _ inputValue.
-	placeholder _ aPlaceholder.
-	css _ cssClasses! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:38:06'!
-type: inputType
-
-	^ self new type: inputType name: '' value: '' ! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:38:02'!
-type: inputType name: inputName
-
-	^ self new type: inputType name: inputName value: '' ! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:53:17'!
-type: inputType name: inputName placeholder: aPlaceholder
-
-	^ self new type: inputType name: inputName value: '' placeholder: aPlaceholder ! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 16:43:27'!
-type: inputType name: inputName placeholder: aPlaceholder css: cssClasses
-
-	^ self new type: inputType name: inputName value: '' placeholder: aPlaceholder css: cssClasses! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 03:30:51'!
-type: inputType name: inputName placeholder: aPlaceholder value: aValue css: cssClasses
-
-	^ self new type: inputType name: inputName value: aValue placeholder: aPlaceholder css: cssClasses! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 01:37:05'!
-type: inputType name: inputName value: inputValue
-
-	^ self new type: inputType name: inputName value: inputValue ! !
-
-!FormInput class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 02:16:56'!
-type: inputType placeholder: aPlaceholder
-
-	^ self new type: inputType name: '' value: ''  placeholder: aPlaceholder! !
-
-!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:35:36'!
-textContent: aTextContent
-
-	textContent _ aTextContent ! !
-
-!HTMLElement class methodsFor: 'instance creation' stamp: 'GC 5/3/2019 02:48:53'!
-with: textContent
-
-	^ self new :: textContent: textContent! !
-
-!HTMLElement class methodsFor: 'object serialization' stamp: 'GC 5/3/2019 02:34:59'!
-render
-	
-	self subclassResponsibility ! !
-
-!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/7/2019 23:46:09'!
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:28:42'!
 initialize
+
+	super initialize.
+	
+	name _ ''.
+	type _ ''.
+	placeHolder _ ''.
+	value _ ''! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:26:26'!
+name: aFormInputName
+
+	name _ aFormInputName ! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:20:51'!
+placeHolder: aFormInputPlaceHolder
+
+	placeHolder _ aFormInputPlaceHolder ! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:26:49'!
+render
+
+	^ '<input class="{1}" type="{2}" name="{3}" value="{4}" placeholder="{5}">' 
+		format: { self cssClasses . type .  name . value . placeHolder}! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:18:45'!
+type: aFormInputType
+	type _ aFormInputType! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:20:20'!
+value: aFormInputValue
+
+	value _ aFormInputValue! !
+
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:23:08'!
+initialize
+	super initialize.
 
 	level _ 1! !
 
@@ -615,10 +671,10 @@ level: headingLevel
 
 	level _ headingLevel ! !
 
-!Heading methodsFor: 'as yet unclassified' stamp: 'GC 5/7/2019 23:47:02'!
+!Heading methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 17:39:52'!
 render
 
-	^ '<h', self level, '>', textContent, '</h', self level, '>'! !
+	^ '<h{1} class="{2}">{3}</h{1}>' format: { self level .  self cssClasses . textContent }! !
 
 !Heading class methodsFor: 'instance creation' stamp: 'GC 5/8/2019 00:11:26'!
 with: textContent level: headingLevel
@@ -637,10 +693,10 @@ name: anHTMLElementName
 
 	name _ anHTMLElementName! !
 
-!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/1/2019 02:37:49'!
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:22:24'!
 render
 
-	^ '<a name="{1}" href="{2}">{3}</a>' format: { name . href . textContent }! !
+	^ '<a name="{1}" href="{2}" class="{3}">{4}</a>' format: { name . href . self cssClasses . textContent }! !
 
 !Hyperlink class methodsFor: 'instance creation' stamp: 'GC 6/1/2019 02:35:03'!
 name: anHTMLElementName to: addressDestination with: textContent
@@ -657,10 +713,40 @@ render
 
 	^ '<br>'! !
 
-!Paragraph methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:28:07'!
+!Paragraph methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 19:17:05'!
 render
 
-	^ '<p>', textContent, '</p>'! !
+	^ '<p class="{1}">{2}</p>' format: { self cssClasses . textContent }! !
+
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:53'!
+name: selectName
+
+	name _ selectName ! !
+
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:36:08'!
+options: selectOptions
+
+	options _ selectOptions ! !
+
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:34:38'!
+render
+
+	^ '<select name="{1}" class="{2}">',
+		(options inject: '' into: [ :allOptions :option | 
+			allOptions, '<option value="', option first ,'">', option second, '</option>'
+		 ]),
+	  '</select>' format: { name . self cssClasses }! !
+
+!Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:57'!
+name: selectName withOptions: selectOptions
+
+	^ self new :: options: selectOptions :: name: selectName! !
+
+!Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:53:53'!
+withOptions: selectOptions
+
+	^ self name: '' withOptions: selectOptions
+! !
 
 !Smaller methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 14:30:20'!
 render
@@ -671,6 +757,38 @@ render
 render
 
 	^ '<span>', textContent, '</span>'! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:19:12'!
+headers: tableHeaders rows: tableRows
+
+	headers _ tableHeaders .
+	rows _ tableRows ! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 19:32:51'!
+render
+
+	^ '<table class="{1}">{2}{3}</table>' format: { self cssClasses . self renderHeader . self renderRows }! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:40:16'!
+renderHeader
+
+	^ '<thead>', (headers inject: '' into: [ :allHeaders :header | allHeaders, '<th>', header, '</th>' ]), '</thead>'! !
+
+!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:44:32'!
+renderRows
+
+	^ '<tbody>', 
+		(rows inject: '' into: [ :allRows :row | 
+			allRows, '<tr>', 
+				(row inject: '' into: [ :allRowDetails :rowDetail | allRowDetails, '<td>', rowDetail, '</td>' ]), 
+			'</tr>'
+		]),
+	  '</tbody>'! !
+
+!Table class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:18:56'!
+headers: tableHeaders rows: tableRows
+
+	^ self new :: headers: tableHeaders rows: tableRows! !
 
 !Header methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:38:17'!
 content: htmlElements
@@ -730,6 +848,35 @@ action: endpoint method: httpMethod enctype: formEnctype containing: formContent
 
 	^ self new :: action: endpoint method: httpMethod enctype: formEnctype containing: formContent! !
 
+!Nav methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:00:35'!
+content: htmlComponents
+
+	content _ htmlComponents ! !
+
+!Nav methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:00:24'!
+css: someCssClasses
+
+
+	cssClasses _ someCssClasses ! !
+
+!Nav methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:03:49'!
+cssClasses
+
+	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+
+!Nav methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:03:53'!
+render
+	| renderedContents|
+	
+	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
+
+	^ '<nav class="{1}">{2}</nav>' format: { self cssClasses . renderedContents}! !
+
+!Nav class methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:03:00'!
+css: cssClasses containing: htmlElements
+
+	^ self new :: css: cssClasses; content: htmlElements ! !
+
 !PlainHTML methodsFor: 'as yet unclassified' stamp: 'GC 6/3/2019 23:26:58'!
 containing: someHtmlCode
 
@@ -744,78 +891,6 @@ render
 containing: htmlCode
 
 	^ self new :: containing: htmlCode ! !
-
-!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:53'!
-name: selectName
-
-	name _ selectName ! !
-
-!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:36:08'!
-options: selectOptions
-
-	options _ selectOptions ! !
-
-!Select methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:54:22'!
-render
-
-	^ '<select name="', name, '">',
-		(options inject: '' into: [ :allOptions :option | 
-			allOptions, '<option value="', option first ,'">', option second, '</option>'
-		 ]),
-	  '</select>'! !
-
-!Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:57'!
-name: selectName withOptions: selectOptions
-
-	^ self new :: options: selectOptions :: name: selectName! !
-
-!Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:53:53'!
-withOptions: selectOptions
-
-	^ self name: '' withOptions: selectOptions
-! !
-
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:19:12'!
-headers: tableHeaders rows: tableRows
-
-	headers _ tableHeaders .
-	rows _ tableRows ! !
-
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/24/2019 01:24:50'!
-initialize
-
-	style _ ''! !
-
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/24/2019 01:18:47'!
-render
-
-	^ '<table style="',style,'">', self renderHeader, self renderRows, '</table>'! !
-
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:40:16'!
-renderHeader
-
-	^ '<thead>', (headers inject: '' into: [ :allHeaders :header | allHeaders, '<th>', header, '</th>' ]), '</thead>'! !
-
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:44:32'!
-renderRows
-
-	^ '<tbody>', 
-		(rows inject: '' into: [ :allRows :row | 
-			allRows, '<tr>', 
-				(row inject: '' into: [ :allRowDetails :rowDetail | allRowDetails, '<td>', rowDetail, '</td>' ]), 
-			'</tr>'
-		]),
-	  '</tbody>'! !
-
-!Table methodsFor: 'as yet unclassified' stamp: 'GC 5/24/2019 01:18:27'!
-style: cssStyle
-
-	style _ cssStyle ! !
-
-!Table class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 18:18:56'!
-headers: tableHeaders rows: tableRows
-
-	^ self new :: headers: tableHeaders rows: tableRows! !
 
 !String methodsFor: '*Cuis-Web' stamp: 'GC 5/3/2019 03:32:13'!
 substrings: separators
