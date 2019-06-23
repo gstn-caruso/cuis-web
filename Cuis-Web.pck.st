@@ -1,8 +1,9 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 18 June 2019 at 5:44:45 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 23 June 2019 at 5:07:23 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 25!
+!provides: 'Cuis-Web' 1 27!
 !requires: 'WebClient' 1 17 nil!
+!requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
 SystemOrganization addCategory: #'Cuis-Web-Components'!
 SystemOrganization addCategory: #'Cuis-Web-Components-Tests'!
@@ -150,12 +151,32 @@ Heading class
 
 !classDefinition: #Hyperlink category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Hyperlink
-	instanceVariableNames: 'href'
+	instanceVariableNames: 'href jsFunctionName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'Hyperlink class' category: #'Cuis-Web-Components'!
 Hyperlink class
+	instanceVariableNames: ''!
+
+!classDefinition: #Icon category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Icon
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Icon class' category: #'Cuis-Web-Components'!
+Icon class
+	instanceVariableNames: ''!
+
+!classDefinition: #Img category: #'Cuis-Web-Components'!
+HTMLElement subclass: #Img
+	instanceVariableNames: 'src alt'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'Img class' category: #'Cuis-Web-Components'!
+Img class
 	instanceVariableNames: ''!
 
 !classDefinition: #Li category: #'Cuis-Web-Components'!
@@ -278,6 +299,20 @@ Object subclass: #PlainHTML
 PlainHTML class
 	instanceVariableNames: ''!
 
+
+!HTMLElement methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:39:53'!
+name
+
+	^ name isEmptyOrNil 
+		ifTrue:  ['']
+		ifFalse: ['name="{1}"' format: { name }]! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:00:37'!
+name
+
+	^ name isEmptyOrNil 
+		ifTrue:  ['']
+		ifFalse: ['name="{1}"' format: { name }]! !
 
 !HeadingTest methodsFor: 'as yet unclassified' stamp: 'GC 5/8/2019 00:01:34'!
 aTextContent
@@ -496,12 +531,7 @@ cssFrameworkCDN
 
 	^ 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css'! !
 
-!View methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 17:30:12'!
-cssInternalStyle
-
-	^''! !
-
-!View methodsFor: 'as yet unclassified' stamp: 'GC 6/18/2019 05:29:37'!
+!View methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 00:45:17'!
 render
 	
 	^	'<!!doctype html>
@@ -512,11 +542,11 @@ render
 	                  <title>CoDNaS Q</title>               
 	                  <link rel="stylesheet" href="{1}">
 				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-utilities@0.3.6/css/bulma-utilities.css">
-				<link rel="stylesheet" href="{2}">
-				{3}
+				<script src="https://kit.fontawesome.com/4c7bfa2683.js"></script>
+				{2}
 			</head>
-			<body>{4}</body>
-		</html>' format: { self cssFrameworkCDN . self cssInternalStyle . self scripts . self body }! !
+			<body>{3}</body>
+		</html>' format: { self cssFrameworkCDN . self scripts . self body }! !
 
 !View methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:26:46'!
 scripts
@@ -577,10 +607,12 @@ content: htmlElements
 
 	content _ htmlElements ! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 13:32:21'!
-cssClasses
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 02:07:34'!
+id
 
-	^ cssClasses inject: '' into: [ :allClasses :cssClass | allClasses, cssClass, ' ' ] :: withBlanksTrimmed! !
+	^ id isEmptyOrNil ::
+		ifTrue: [ '' ]
+		ifFalse: [ 'id="{1}"' format: { id } ]! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:23:25'!
 id: elementId
@@ -595,13 +627,13 @@ initialize
 	style _ ''.
 	content _ OrderedCollection new! !
 
-!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:38:30'!
+!Div methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:40:20'!
 render
 	| renderedContents|
 	
 	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
 
-	^ '<div id="{1}" class="{2}" style="{3}">{4}</div>' format: { id . self cssClasses . style . renderedContents}! !
+	^ '<div {1} class="{2}" style="{3}" {4}>{5}</div>' format: { self id . self cssClasses . style . self name . renderedContents}! !
 
 !Div methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 01:36:24'!
 style: inlineStyle
@@ -662,11 +694,11 @@ placeHolder: aFormInputPlaceHolder
 
 	placeHolder _ aFormInputPlaceHolder ! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:26:49'!
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 02:59:59'!
 render
 
-	^ '<input class="{1}" type="{2}" name="{3}" value="{4}" placeholder="{5}">' 
-		format: { self cssClasses . type .  name . value . placeHolder}! !
+	^ '<input class="{1}" type="{2}" {3} value="{4}" placeholder="{5}">' 
+		format: { self cssClasses . type .  self name . value . placeHolder}! !
 
 !FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:18:45'!
 type: aFormInputType
@@ -710,10 +742,29 @@ href: destinationAddress
 
 	href _ destinationAddress! !
 
-!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:22:24'!
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 01:58:02'!
+initialize
+
+	super initialize.
+	href _ '#'.
+	jsFunctionName _ ''! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 02:06:33'!
+onClick
+
+	^ jsFunctionName isEmptyOrNil :: 
+		ifTrue:  ['']
+		ifFalse: ['onClick="{1}"' format: { jsFunctionName }]! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 01:59:05'!
+onClick: aJsFunctionName
+
+	jsFunctionName _ aJsFunctionName! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 01:59:58'!
 render
 
-	^ '<a name="{1}" href="{2}" class="{3}">{4}</a>' format: { name . href . self cssClasses . textContent }! !
+	^ '<a name="{1}" href="{2}" class="{3}" {4}>{5}</a>' format: { name . href . self cssClasses .  self onClick . textContent }! !
 
 !Hyperlink class methodsFor: 'instance creation' stamp: 'GC 6/1/2019 02:35:03'!
 name: anHTMLElementName to: addressDestination with: textContent
@@ -724,6 +775,47 @@ name: anHTMLElementName to: addressDestination with: textContent
 to: addressDestination with: textContent
 
 	^ self with: textContent :: href: addressDestination! !
+
+!Hyperlink class methodsFor: 'instance creation' stamp: 'GC 6/23/2019 01:57:29'!
+with: textContent onClick: jsFunctionName
+
+	^ self with: textContent :: href: '#' :: onClick: jsFunctionName! !
+
+!Icon methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 00:41:21'!
+render
+
+	^  '<i class="{1}"></i>' format: { self cssClasses }! !
+
+!Icon class methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 00:40:30'!
+css: someCssClasses
+	
+	^ self new :: css: someCssClasses! !
+
+!Img methodsFor: 'as yet unclassified' stamp: 'GC 6/21/2019 07:48:43'!
+alt
+
+	^ alt! !
+
+!Img methodsFor: 'as yet unclassified' stamp: 'GC 6/21/2019 08:03:22'!
+render
+
+	^ '<img src="{1}" alt="{2}" class="{3}">' format: { self src . self alt . self cssClasses }! !
+
+!Img methodsFor: 'as yet unclassified' stamp: 'GC 6/21/2019 07:48:37'!
+src
+
+	^ src! !
+
+!Img methodsFor: 'as yet unclassified' stamp: 'GC 6/21/2019 07:49:24'!
+src: imgSrc alt: imgAlt
+
+	src _ imgSrc.
+	alt _ imgAlt! !
+
+!Img class methodsFor: 'as yet unclassified' stamp: 'GC 6/21/2019 07:49:08'!
+src: imgSrc alt: imgAlt
+
+	^ self new :: src: imgSrc alt: imgAlt! !
 
 !Li methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 23:53:17'!
 containing: someContent
@@ -764,14 +856,14 @@ options: selectOptions
 
 	options _ selectOptions ! !
 
-!Select methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:34:38'!
+!Select methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:07:58'!
 render
 
-	^ '<select name="{1}" class="{2}">',
+	^ '<select {1} class="{2}">',
 		(options inject: '' into: [ :allOptions :option | 
 			allOptions, '<option value="', option first ,'">', option second, '</option>'
 		 ]),
-	  '</select>' format: { name . self cssClasses }! !
+	  '</select>' format: { self name . self cssClasses }! !
 
 !Select class methodsFor: 'as yet unclassified' stamp: 'GC 5/22/2019 01:55:57'!
 name: selectName withOptions: selectOptions
@@ -903,12 +995,24 @@ action: endpoint method: httpMethod enctype: formEnctype containing: formContent
 	enctype _ formEnctype.
 	contents _ formContent! !
 
-!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:03:00'!
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:11:53'!
+enctype
+
+	^ enctype isEmptyOrNil 
+		ifTrue: [''] 
+		ifFalse: [ 'enctype="{1}"' format: { enctype }]! !
+
+!HtmlForm methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:11:19'!
 render
 	
-	^ '<form action="', action,'" method="', method,'" enctype="', enctype, '">',
+	^ '<form action="', action,'" method="', method,'" {1}>',
 		contents render,
- 	   '</form>'! !
+ 	   '</form>' format: {self enctype }! !
+
+!HtmlForm class methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 03:10:42'!
+action: endpoint method: httpMethod containing: formContent
+
+	^ self new :: action: endpoint method: httpMethod enctype: '' containing: formContent! !
 
 !HtmlForm class methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:01:43'!
 action: endpoint method: httpMethod enctype: formEnctype containing: formContent
