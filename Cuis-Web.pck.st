@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 25 June 2019 at 1:49:57 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 25 June 2019 at 1:59:04 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 28!
+!provides: 'Cuis-Web' 1 29!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -131,7 +131,7 @@ FileInput class
 
 !classDefinition: #FormInput category: #'Cuis-Web-Components'!
 HTMLElement subclass: #FormInput
-	instanceVariableNames: 'type value placeHolder'
+	instanceVariableNames: 'type value placeHolder required'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
@@ -686,7 +686,7 @@ render
 	</div>
 	' format: { self cssClasses . name}! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:28:42'!
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/25/2019 01:57:05'!
 initialize
 
 	super initialize.
@@ -694,18 +694,29 @@ initialize
 	name _ ''.
 	type _ ''.
 	placeHolder _ ''.
-	value _ ''! !
+	value _ ''.
+	required _ false! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/25/2019 01:56:54'!
+isRequired
+
+	required _ true! !
 
 !FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:20:51'!
 placeHolder: aFormInputPlaceHolder
 
 	placeHolder _ aFormInputPlaceHolder ! !
 
-!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 02:59:59'!
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/25/2019 01:58:10'!
 render
 
-	^ '<input class="{1}" type="{2}" {3} value="{4}" placeholder="{5}">' 
-		format: { self cssClasses . type .  self name . value . placeHolder}! !
+	^ '<input class="{1}" type="{2}" {3} value="{4}" placeholder="{5}" {6}>' 
+		format: { self cssClasses . type .  self name . value . placeHolder . self requiredField }! !
+
+!FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/25/2019 01:57:48'!
+requiredField
+
+	^ required ifTrue: [ 'required' ] ifFalse: [ '' ]! !
 
 !FormInput methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 18:18:45'!
 type: aFormInputType
