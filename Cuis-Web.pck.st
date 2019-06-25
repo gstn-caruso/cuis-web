@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 23 June 2019 at 5:07:23 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 25 June 2019 at 1:49:57 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 27!
+!provides: 'Cuis-Web' 1 28!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -350,11 +350,18 @@ test_03_with_a_given_level_bigger_than_6_fails
 classFor: request
      ^(StaticPath anyCanHandle: request) ifTrue: [ StaticPath ] ifFalse: [ SmartPath ]! !
 
-!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 6/17/2019 21:24:52'!
+!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 6/25/2019 01:48:04'!
 request: request
-	^ [ self classFor: request  :: forRequest: request :: handle ]
+	^ [ 
+		[ self classFor: request  :: forRequest: request :: handle ] 
+			valueWithin: self timeoutTolerance onTimeout: [ request send500Response: 'Timeout' ] ]
 		on: Error
 		do: [ :anError | request send500Response: (self errorReportFor: anError) ]! !
+
+!DynamicRoutingWebServer methodsFor: 'as yet unclassified' stamp: 'GC 6/25/2019 01:48:15'!
+timeoutTolerance
+
+	^ Duration seconds: 25! !
 
 !CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:47:22'!
 initialize
