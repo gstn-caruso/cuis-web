@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3805] on 25 June 2019 at 1:59:04 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 29 June 2019 at 10:28:25 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 29!
+!provides: 'Cuis-Web' 1 30!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -368,10 +368,15 @@ initialize
 
 	webServer _ DynamicRoutingWebServer new! !
 
-!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/30/2019 17:15:56'!
+!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 6/29/2019 10:28:12'!
 start
 
-	webServer listenOn: self defaultPort! !
+	self startOn: self defaultPort ! !
+
+!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 6/29/2019 10:27:49'!
+startOn: aPortNumber
+
+	webServer listenOn: aPortNumber! !
 
 !CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 5/18/2019 17:44:31'!
 stop
