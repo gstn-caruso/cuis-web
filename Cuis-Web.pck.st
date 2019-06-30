@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 29 June 2019 at 10:30:59 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3795] on 30 June 2019 at 8:02:01 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 31!
+!provides: 'Cuis-Web' 1 32!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -147,6 +147,16 @@ HTMLElement subclass: #Heading
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'Heading class' category: #'Cuis-Web-Components'!
 Heading class
+	instanceVariableNames: ''!
+
+!classDefinition: #HtmlTextarea category: #'Cuis-Web-Components'!
+HTMLElement subclass: #HtmlTextarea
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Cuis-Web-Components'!
+!classDefinition: 'HtmlTextarea class' category: #'Cuis-Web-Components'!
+HtmlTextarea class
 	instanceVariableNames: ''!
 
 !classDefinition: #Hyperlink category: #'Cuis-Web-Components'!
@@ -771,6 +781,11 @@ with: textContent level: headingLevel
 	(headingLevel > 6) ifTrue: [ Error signal: 'Heading tags can not go futher than level 6' ].
 
 	^ self with: textContent :: level: headingLevel ! !
+
+!HtmlTextarea methodsFor: 'as yet unclassified' stamp: 'GC 6/30/2019 18:56:02'!
+render
+
+	^ '<textarea class="{1}" name="{2}">{3}</p>' format: { self cssClasses . name . textContent }! !
 
 !Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:40:39'!
 href: destinationAddress
