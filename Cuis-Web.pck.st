@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3795] on 30 June 2019 at 8:02:01 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 1 July 2019 at 11:39:25 pm'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 32!
+!provides: 'Cuis-Web' 1 33!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -545,14 +545,19 @@ respondSuccessfully: aRequest with: htmlContent
 
 	aRequest send200Response: renderedContent contentType: 'text/html; charset=utf-8'! !
 
-!RootController methodsFor: 'as yet unclassified' stamp: 'FJG 6/5/2019 23:03:18'!
+!RootController methodsFor: 'as yet unclassified' stamp: 'GC 7/1/2019 23:31:53'!
 respondSuccessfully: aRequest withImage: fileEntryForImage
 	| imageData |
 	imageData _ fileEntryForImage binaryContents readStream.
-	aRequest stream200Response: imageData size: imageData size type: 'image/', fileEntryForImage extension! !
+	
+	aRequest 
+		stream200Response: imageData
+		size: imageData size 
+		type: 'image/', fileEntryForImage extension! !
 
-!RootController methodsFor: 'as yet unclassified' stamp: 'FJG 6/5/2019 23:03:59'!
+!RootController methodsFor: 'as yet unclassified' stamp: 'GC 7/1/2019 23:25:01'!
 respondSuccessfully: aRequest withImageIn: imagePath
+
 	^ self respondSuccessfully: aRequest withImage: imagePath asFileEntry! !
 
 !View methodsFor: 'as yet unclassified' stamp: 'GC 4/18/2019 22:00:47'!
