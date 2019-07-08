@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 5 July 2019 at 2:05:35 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 8 July 2019 at 3:04:08 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 34!
+!provides: 'Cuis-Web' 1 35!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -31,7 +31,7 @@ DynamicRoutingWebServer class
 
 !classDefinition: #CuisWebApplication category: #'Cuis-Web'!
 Object subclass: #CuisWebApplication
-	instanceVariableNames: 'webServer'
+	instanceVariableNames: 'webServer rootPath'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web'!
@@ -383,10 +383,21 @@ timeoutTolerance
 
 	^ Duration seconds: 25! !
 
-!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 3/31/2019 03:47:22'!
+!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 7/8/2019 02:51:03'!
 initialize
 
-	webServer _ DynamicRoutingWebServer new! !
+	webServer _ DynamicRoutingWebServer new.
+	rootPath _ ''! !
+
+!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 7/8/2019 02:52:35'!
+rootPath
+
+	^ rootPath! !
+
+!CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 7/8/2019 02:52:50'!
+rootPath: aDirectoryPath
+
+	rootPath _ aDirectoryPath! !
 
 !CuisWebApplication methodsFor: 'as yet unclassified' stamp: 'GC 6/29/2019 10:28:12'!
 start
