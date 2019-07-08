@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 8 July 2019 at 3:04:08 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 8 July 2019 at 3:07:34 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 35!
+!provides: 'Cuis-Web' 1 36!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -423,6 +423,11 @@ defaultPort
 webServer
 	
 	^ webServer! !
+
+!CuisWebApplication class methodsFor: 'instance creation' stamp: 'GC 7/8/2019 03:06:01'!
+instance
+
+	^ instance! !
 
 !CuisWebApplication class methodsFor: 'instance creation' stamp: 'GC 3/30/2019 19:56:01'!
 restart
