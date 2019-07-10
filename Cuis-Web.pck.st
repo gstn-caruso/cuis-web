@@ -1,7 +1,7 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 9 July 2019 at 8:25:19 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 10 July 2019 at 12:03:01 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
-!provides: 'Cuis-Web' 1 37!
+!provides: 'Cuis-Web' 1 38!
 !requires: 'WebClient' 1 17 nil!
 !requires: 'JSON' 1 19 nil!
 SystemOrganization addCategory: #'Cuis-Web'!
@@ -504,14 +504,14 @@ forRequest: aRequest
 	
 	^ self new request: aRequest; yourself! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:30:42'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 7/10/2019 00:02:29'!
 actionSelector
 	|parsedPath|
 	
 	(request isGetRequest and: [ request url = '/' ])
 		ifTrue: [ ^ #index: ]
 		ifFalse: [
-			parsedPath _ request url substrings: '/'.
+			parsedPath _ request url findTokens: '/'.
 			(parsedPath size = 1)
 				ifTrue: [ ^ #index:  ] 
 				ifFalse: [ ^ parsedPath last :: append: ':' :: asSymbol ]
@@ -1164,24 +1164,3 @@ render
 containing: htmlCode
 
 	^ self new :: containing: htmlCode ! !
-
-!String methodsFor: '*Cuis-Web' stamp: 'GC 5/3/2019 03:32:13'!
-substrings: separators
-	"Answer an array of non-empty substrings from the receiver separated by
-	one or more characters from the 'separators' argument collection."
-
-	| substrings substringStart |
-	substrings := (Array new: 10) writeStream.
-	1 to: self size do: [ :i | 
-		| nextChar |
-		nextChar := self at: i.
-		(separators includes: nextChar)
-			ifTrue: [
-				substringStart
-					ifNotNil: [
-						substrings nextPut: (self copyFrom: substringStart to: i - 1).
-						substringStart := nil ] ]
-			ifFalse: [ substringStart ifNil: [ substringStart := i ] ] ].
-	substringStart
-		ifNotNil: [ substrings nextPut: (self copyFrom: substringStart to: self size) ].
-	^ substrings contents! !
