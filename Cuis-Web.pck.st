@@ -1,4 +1,4 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 10 July 2019 at 12:03:01 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3812] on 15 July 2019 at 3:28:07 am'!
 'Description Microframework web for Cuis Smalltalk
 '!
 !provides: 'Cuis-Web' 1 38!
@@ -171,13 +171,13 @@ HtmlTextarea class
 
 !classDefinition: #Hyperlink category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Hyperlink
-	instanceVariableNames: 'href jsFunctionName'
+	instanceVariableNames: 'href jsFunctionName target'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Cuis-Web-Components'!
 !classDefinition: 'Hyperlink class' category: #'Cuis-Web-Components'!
 Hyperlink class
-	instanceVariableNames: ''!
+	instanceVariableNames: 'target'!
 
 !classDefinition: #Icon category: #'Cuis-Web-Components'!
 HTMLElement subclass: #Icon
@@ -504,14 +504,14 @@ forRequest: aRequest
 	
 	^ self new request: aRequest; yourself! !
 
-!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 7/10/2019 00:02:29'!
+!SmartPath methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 03:30:42'!
 actionSelector
 	|parsedPath|
 	
 	(request isGetRequest and: [ request url = '/' ])
 		ifTrue: [ ^ #index: ]
 		ifFalse: [
-			parsedPath _ request url findTokens: '/'.
+			parsedPath _ request url substrings: '/'.
 			(parsedPath size = 1)
 				ifTrue: [ ^ #index:  ] 
 				ifFalse: [ ^ parsedPath last :: append: ':' :: asSymbol ]
@@ -844,17 +844,25 @@ render
 
 	^ '<textarea {1} name="{2}">{3}</p>' format: { self cssClasses . name . textContent }! !
 
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 7/15/2019 03:26:55'!
+dataTarget
+
+	^ target isEmptyOrNil :: 
+		ifTrue:  ['']
+		ifFalse: ['data-target="{1}"' format: { target }]! !
+
 !Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 5/3/2019 02:40:39'!
 href: destinationAddress
 
 	href _ destinationAddress! !
 
-!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 01:58:02'!
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 7/15/2019 03:23:15'!
 initialize
 
 	super initialize.
 	href _ '#'.
-	jsFunctionName _ ''! !
+	jsFunctionName _ ''.
+	target _ ''! !
 
 !Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 6/23/2019 02:06:33'!
 onClick
@@ -868,10 +876,15 @@ onClick: aJsFunctionName
 
 	jsFunctionName _ aJsFunctionName! !
 
-!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 7/5/2019 00:37:50'!
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 7/15/2019 03:23:53'!
 render
 
-	^ '<a name="{1}" href="{2}" {3} {4}>{5}</a>' format: { name . href . self cssClasses .  self onClick . textContent }! !
+	^ '<a name="{1}" href="{2}" {3} {4} {5}>{6}</a>' format: { name . href . self cssClasses .  self onClick . self dataTarget . textContent }! !
+
+!Hyperlink methodsFor: 'as yet unclassified' stamp: 'GC 7/15/2019 03:23:03'!
+target: aTarget
+
+	target _ aTarget ! !
 
 !Hyperlink class methodsFor: 'instance creation' stamp: 'GC 6/1/2019 02:35:03'!
 name: anHTMLElementName to: addressDestination with: textContent
@@ -964,13 +977,13 @@ css: someCssClasses
 
 	cssClasses _ someCssClasses ! !
 
-!Nav methodsFor: 'as yet unclassified' stamp: 'GC 7/5/2019 00:38:16'!
+!Nav methodsFor: 'as yet unclassified' stamp: 'GC 7/15/2019 02:30:03'!
 render
 	| renderedContents|
 	
 	renderedContents _ content inject: '' into: [:allContents :htmlElement | allContents, htmlElement render].
 
-	^ '<nav {1}>{2}</nav>' format: { self cssClasses . renderedContents}! !
+	^ '<nav {1} role="navigation" aria-label="main navigation">{2}</nav>' format: { self cssClasses . renderedContents}! !
 
 !Nav class methodsFor: 'as yet unclassified' stamp: 'GC 6/5/2019 23:03:00'!
 css: cssClasses containing: htmlElements
@@ -1164,3 +1177,24 @@ render
 containing: htmlCode
 
 	^ self new :: containing: htmlCode ! !
+
+!String methodsFor: '*Cuis-Web' stamp: 'GC 5/3/2019 03:32:13'!
+substrings: separators
+	"Answer an array of non-empty substrings from the receiver separated by
+	one or more characters from the 'separators' argument collection."
+
+	| substrings substringStart |
+	substrings := (Array new: 10) writeStream.
+	1 to: self size do: [ :i | 
+		| nextChar |
+		nextChar := self at: i.
+		(separators includes: nextChar)
+			ifTrue: [
+				substringStart
+					ifNotNil: [
+						substrings nextPut: (self copyFrom: substringStart to: i - 1).
+						substringStart := nil ] ]
+			ifFalse: [ substringStart ifNil: [ substringStart := i ] ] ].
+	substringStart
+		ifNotNil: [ substrings nextPut: (self copyFrom: substringStart to: self size) ].
+	^ substrings contents! !
